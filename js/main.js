@@ -17,10 +17,13 @@ var config = {
 }
 const bgStarcount = 100; // Sier hvor mange sjener er i bakgrunnen. Tilpass antallet hvis du føler for det
 var stars;
+var otherStars;
 
 var timeEvent;
 var game = new Phaser.Game(config);
 var countStars = 0;
+
+var gameover = false;
 
 var elimination = 0;
 
@@ -36,6 +39,7 @@ function create() {
     //setting the background of the star shooting
     this.add.image(0, 0, 'background').setOrigin(0, 0);
     stars = this.physics.add.staticGroup();    //Gruppe som er de små stjernene
+    otherStars = [];
     //setting up backfround stars
     backgroundStars(this);
 
@@ -43,6 +47,9 @@ function create() {
     text = this.add.text(32,32);
     score = this.add.text(32, 45);
     amount = this.add.text(32, 58);
+    gameoverTxt = this.add.text(150,250);
+
+    gameoverTxt.setFontSize(100);
 
     this.physics.world.setBounds(0, 0, 800, 600);
 
@@ -56,6 +63,7 @@ function create() {
 }
 function update(time, delta) {
     //looping through all in the group
+    if(!gameover) {
     Phaser.Actions.Call(stars.getChildren(), child =>{
             child.anims.play("star", true);
          });
@@ -71,7 +79,15 @@ function update(time, delta) {
             delay = delay - 1000;
         }
         timeEvent.reset({delay: delay, callback: onEvent, callbackScope: this});
-    } 
+    } else if (countStars > 10) {
+        timeEvent.destroy();
+        gameoverTxt.setText("GAME OVER");
+        gameover = true; 
+        for(var i = 0; i < otherStars.length; i++) {
+            otherStars[i].setVisible(false);
+            otherStars[i].off('pointerdown');
+        }    
+    }
 
     if(timeEvent.getProgress() == 1) {
         if(delay > 1000) {
@@ -79,6 +95,8 @@ function update(time, delta) {
         }
         timeEvent= this.time.addEvent({delay: delay, callback: onEvent, callbackScope: this});
     }
+
+}
 
 }
 
@@ -90,6 +108,7 @@ function onEvent() {
 
 var velocityX = 200;
 var velocityY = 200;
+
 function addStar(phy) {
         if(delay <= 1000) {
             velocityX += 100;
@@ -100,6 +119,7 @@ function addStar(phy) {
         star.setVelocity(velocityX,velocityY);
         star.setBounce(1).setCollideWorldBounds(true);
         star.anims.play("bigStar", true)
+        otherStars.push(star);
 
         if(Math.random() > 0.5) {
             star.body.velocity.x *= -1;
@@ -115,6 +135,7 @@ function addStar(phy) {
             this.off(this, 'pointerdown');
             this.input.enabled = false;
             this.setVisible(false);
+            otherStars.splice(otherStars.indexOf(this));
         });
 }
 
