@@ -13,10 +13,16 @@ var config = {
         preload: preload, 
         create: create,
         update: update
+    },
+    audio: {
+        disableWebAudio: true
     }
 }
 const bgStarcount = 100; // Sier hvor mange sjener er i bakgrunnen. Tilpass antallet hvis du føler for det
 var stars;
+
+var shootSound;
+var bgMusic;
 
 var timeEvent;
 var game = new Phaser.Game(config);
@@ -27,9 +33,11 @@ var elimination = 0;
 var delay = 15000;
 
 function preload() {
-    this.load.image('background','/assets/bg_placeholder.png');
-    this.load.spritesheet("star", "/assets/obj_stars.png", {frameWidth: 66, frameHeight: 65})
-    this.load.spritesheet("bgStars", "/assets/bg_stars.png", {frameWidth: 6, frameHeight: 6});
+    this.load.image('background','./assets/bg_placeholder.png');
+    this.load.spritesheet("star", "./assets/obj_stars.png", {frameWidth: 66, frameHeight: 65})
+    this.load.spritesheet("bgStars", "./assets/bg_stars.png", {frameWidth: 6, frameHeight: 6});
+    this.load.audio("shoot", "./assets/blast.mp3");
+    this.load.audio("bgMusic", "./assets/bg_music.mp3");
 }
 
 function create() {
@@ -52,6 +60,11 @@ function create() {
     addStar(this);
     countStars++;
     timeEvent = this.time.addEvent({delay: delay, callback: onEvent, callbackScope: this});
+
+    shootSound = this.sound.add("shoot");
+    bgMusic = this.sound.add("bgMusic");
+    bgMusic.loop = true;
+    bgMusic.play();
 
 }
 function update(time, delta) {
@@ -79,6 +92,10 @@ function update(time, delta) {
         }
         timeEvent= this.time.addEvent({delay: delay, callback: onEvent, callbackScope: this});
     }
+
+    this.input.on("pointerdown", function(pointer){
+        shootSound.play();
+    });
 
 }
 
