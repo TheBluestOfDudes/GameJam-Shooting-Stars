@@ -73,6 +73,10 @@ function create() {
     bgMusic.loop = true;
     bgMusic.play();
 
+    this.input.on("pointerdown", function(pointer){
+        shootSound.play();
+    });
+
 }
 function update(time, delta) {
     //looping through all in the group
@@ -88,7 +92,7 @@ function update(time, delta) {
     if (countStars == 0) {
         addStar(this);
         countStars++;
-        if(delay > 1000) {
+        if(delay > 3000) {
             delay = delay - 1000;
         }
         timeEvent.reset({delay: delay, callback: onEvent, callbackScope: this});
@@ -103,15 +107,13 @@ function update(time, delta) {
     }
 
     if(timeEvent.getProgress() == 1) {
-        if(delay > 1000) {
+        if(delay > 3000) {
             delay = delay - 1000;
         }
+        if(!gameover) {
         timeEvent= this.time.addEvent({delay: delay, callback: onEvent, callbackScope: this});
+        }
     }
-
-    this.input.on("pointerdown", function(pointer){
-        shootSound.play();
-    });
 
 }
 
@@ -127,9 +129,9 @@ var velocityX = 200;
 var velocityY = 200;
 
 function addStar(phy) {
-        if(delay <= 1000) {
-            velocityX += 100;
-            velocityY += 100;
+        if(delay <= 3000) {
+            velocityX += 20;
+            velocityY += 20;
         }
         console.log("x:" + velocityX + " y:"+ velocityY);
     var star = phy.physics.add.sprite(Phaser.Math.Between(50, 750), 0, 'star');
@@ -152,7 +154,7 @@ function addStar(phy) {
             this.off(this, 'pointerdown');
             this.input.enabled = false;
             this.setVisible(false);
-            otherStars.splice(otherStars.indexOf(this));
+          //  otherStars.splice(otherStars.indexOf(this));
         });
 }
 
